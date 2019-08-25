@@ -1,39 +1,45 @@
 package se.ec.loffe;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class App
 {
-    public static void menu1() {
-        System.out.println("### Calculator ###\n(X for exit)\nEnter a number: ");
+    public static Scanner scan = new Scanner(System.in);
+    public static int arrayIndex = 0;
+
+    private static void msg1() {
+        System.out.print("### Calculator by Loffe ### (X to exit)\nEnter first number: ");
     }
-    public static void menu2() {
-        System.out.println("Enter an operator [+-*/%]: ");
+    private static void msg2() {
+        System.out.print("Enter an operator [+-*/%]: ");
     }
-    public static void menu3() {
-        System.out.println("Enter another number: ");
+    private static void msg3() {
+        System.out.print("Enter another number: ");
+    }
+    private static void msg4() {
+        System.out.println("Invalid input. Please only use integers and decimals.");
+    }
+    private static void msg5() {
+        System.out.println("Invalid input. Please only use +, -, *, / or % (modulus).");
     }
 
-    public static double addition(double num1, double num2){
-            double addition;
-            return addition = num1 + num2;
+    public static double addition(double num1, double num2, double num3){
+        return num1 + num2 + num3;
     }
-    public static double subtraction(double num1, double num2){
-        double subtraction;
-        return subtraction = num1 - num2;
+    public static double subtraction(double num1, double num2, double num3){
+        return num1 - num2 - num3;
     }
     public static double multiplication(double num1, double num2){
-        double multiplication;
-        return multiplication = num1 * num2;
+        return num1 * num2;
     }
     public static double division(double num1, double num2){
-        double division;
-        return division = num1 / num2;
+        return num1 / num2;
     }
     public static double modulus(double num1, double num2){
-        double modulus;
-        return modulus = num1 % num2;
+        return num1 % num2;
     }
+
     public static double addFromArray(double[] numbers){
         double sum = 0;
         for (Double number: numbers) {
@@ -41,77 +47,111 @@ public class App
         }
         return sum;
     }
-    public static boolean askForMoreNumbers(){
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Additional numbers? (y/n) :");
-        String answ = scanner.nextLine();
-        if(answ.equalsIgnoreCase("y")){
-            return true;
-        }else{
+
+    private static boolean askForMoreNumbers(){
+        if(arrayIndex < 5) {
+            System.out.print("Additional numbers? (Y/y for yes, any key for no): ");
+            String answerMoreNumbers = scan.nextLine();
+            return answerMoreNumbers.equalsIgnoreCase("y");
+        }else {
+            System.out.println("Max index reached. No more input possible.");
             return false;
         }
     }
 
     public static void main( String[] args ) {
-        Scanner scan = new Scanner(System.in);
         boolean isRunning = true;
-        double[] arrayOfDoubles = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        double num1 = 0;
+        double num2 = 0;
+        double[] arrayOfDoubles = {0, 0, 0, 0, 0};
 
         while(isRunning){
-            menu1();
-            String input1 = scan.nextLine();
-            if(input1.equalsIgnoreCase("x")){
-                isRunning = false;
-                System.out.println("Hope you had a good time!");
-                scan.close();
-                break;
-
+            // Get first number
+            String input1;
+            boolean running = true;
+            while(running) {
+                msg1(); // calculator main menu
+                input1 = scan.nextLine();
+                if(input1.equalsIgnoreCase("x")){
+                    isRunning = false;
+                    System.out.println("Hope you had a good time!");
+                    scan.close();
+                    System.exit(0);
+                }if(!input1.equalsIgnoreCase("x")){
+                    try {
+                        num1 = Double.parseDouble(input1);
+                        running = false;
+                    } catch (Exception e) {
+                        msg4(); // invalid input message
+                    }
+                }
             }
-            double num1 = Double.parseDouble(input1);
 
-            menu2();
+            // Get operator
+            msg2(); // ask for operator
             String oper = scan.nextLine();
+            while(!(oper.equals("+") || oper.equals("-") || oper.equals("*") || oper.equals("/") || oper.equals("%"))){
+                msg5(); // invalid input message
+                msg2(); // ask for operator
+                oper = scan.nextLine();
+            }
 
-            menu3();
-            String input2 = scan.nextLine();
-            double num2 = Double.parseDouble(input2);
-
-            if(oper.equals("+") || oper.equals("-")) {
-                while (askForMoreNumbers()) {
-                    menu3();
-                    int x = 0;
-                    String input3 = scan.nextLine();
-                    arrayOfDoubles[x] = Double.parseDouble(input3);
-                    x++;
+            // Get second number
+            String input2;
+            running = true;
+            do {
+                msg3(); // ask for another number
+                input2 = scan.nextLine();
+                try {
+                    num2 = Double.parseDouble(input2);
+                    running = false;
+                }catch (Exception e){
+                    msg4(); // invalid input message
                 }
-                if(oper.equals("+")){
+            }while(running);
 
-                    System.out.println("Result: " + addFromArray(arrayOfDoubles));
-
+            // If addition or subtraction is chosen the user can
+            // add additional numbers.
+            if(oper.equals("+") || oper.equals("-")) {
+                arrayIndex = 0;
+                running = true;
+                while (askForMoreNumbers()){
+                    msg3(); // ask for another number
+                    String input3 = scan.nextLine();
+                    do {
+                        try {
+                            arrayOfDoubles[arrayIndex] = Double.parseDouble(input3);
+                            running = false;
+                            }catch (Exception e){
+                            msg4(); // invalid input message
+                            running = false;
+                        }
+                    }while(running);
+                    arrayIndex++;
                 }
             }
 
-
-
-
+            // Print results, depending on operator
             switch (oper){
                 case "+":
-                    System.out.println("Answer: " + num1 + " " + oper + " " + num2 + " = " + addition(num1, num2));
+                    System.out.println("Result: " + addition(addFromArray(arrayOfDoubles), num1, num2));
+                    Arrays.fill(arrayOfDoubles, 0);
                     break;
                 case "-":
-                    System.out.println("Answer: " + num1 + " " + oper + " " + num2 + " = " + subtraction(num1, num2));
+                    System.out.println("Result: " + subtraction(num1, num2, addFromArray(arrayOfDoubles)));
+                    Arrays.fill(arrayOfDoubles, 0);
                     break;
                 case "*":
-                    System.out.println("Answer: " + num1 + " " + oper + " " + num2 + " = " + multiplication(num1, num2));
+                    System.out.println("Result: " + multiplication(num1, num2));
                     break;
                 case "/":
-                    System.out.println("Answer: " + num1 + " " + oper + " " + num2 + " = " + division(num1, num2));
+                    System.out.println("Result: " + division(num1, num2));
                     break;
                 case "%":
-                    System.out.println("Answer: " + num1 + " " + oper + " " + num2 + " = " + modulus(num1, num2));
+                    System.out.println("Result: " + modulus(num1, num2));
                     break;
                 default:
-                    System.out.println("Weird operator! Doesn't work. Please try again.");
+                    System.out.println("Unknown error. What happened?");
                     break;
             }
         }
